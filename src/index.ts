@@ -4,6 +4,8 @@ import fetch from "node-fetch"
 import { Store } from "./store";
 import schedule from "node-schedule"
 require("dotenv").config()
+const packageJson = require("../package.json")
+const userAgent = `${packageJson.name}/${packageJson.version} (+https://github.com/rinsuki/discord-rss-bot)`
 
 const client = new Discord.Client();
 const store = new Store("./store.json")
@@ -28,7 +30,11 @@ async function crawlChannel(channel: TextChannel) {
     }
     const url = urlRegEx[0]
     const parser = new RSSParser()
-    const req = await fetch(url)
+    const req = await fetch(url, {
+        headers: {
+            "User-Agent": userAgent,
+        }
+    })
     const contentType = req.headers.get("Content-Type")
     if (contentType) {
         if (contentType.startsWith("text/html")) return
